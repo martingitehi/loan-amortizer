@@ -12,7 +12,7 @@ router.post('/calculate', (req, res) => {
     }
     else {
         let monthlyRate = amortizer.computePMT(rate, period, amount);
-        return res.json({ success: true, message: `Your query for ${amount} payable in ${period} months at ${rate}% p.a has a monthly installment of K,${monthlyRate}` })
+        return res.json({ success: true, message: `Your query for ${amount} payable in ${period} months at ${rate}% p.a has a monthly installment of K,${monthlyRate}`, amount: monthlyRate })
     }
 });
 
