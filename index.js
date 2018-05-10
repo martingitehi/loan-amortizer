@@ -15,11 +15,26 @@ let server = app.listen(app.get('port'), function () {
     console.log('Express noding at ' + server.address().port);
 });
 
+const forceSSL = function () {
+    return function (req, res, next) {
+        if (req.headers['x-forwarded-proto'] !== 'https') {
+            return res.redirect(
+                ['https://', req.get('Host'), req.url].join('')
+            );
+        }
+        next();
+    }
+}
+
+
 app.use(logger('dev'));
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
+
+//serve over https
+// app.use(forceSSL())
 
 app.use('/api', api)
 

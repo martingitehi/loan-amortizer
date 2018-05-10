@@ -11,8 +11,15 @@ router.post('/calculate', (req, res) => {
         res.json({ success: false, message: 'Please provide values greater than 0' })
     }
     else {
-        let monthlyRate = amortizer.computePMT(rate, period, amount);
-        return res.json({ success: true, message: `Your query for ${amount} payable in ${period} months at ${rate}% p.a has a monthly installment of K,${monthlyRate}`, amount: monthlyRate })
+        let monthlyRate = amortizer.computePMT(rate, period, amount).monthlyAmount.toFixed(2);
+        let totalInterest = amortizer.computePMT(rate, period, amount).totalInterest.toFixed(2);
+
+        return res.json({
+            success: true,
+            message: `Your query for ${amount} payable in ${period} months at ${rate}% p.a has a monthly installment of K${monthlyRate} and total interest of ${totalInterest}`, amount: monthlyRate,
+            totalInterest: totalInterest,
+            totalPayment: totalInterest + amount
+        })
     }
 });
 
@@ -25,7 +32,10 @@ router.post('/get-schedule', (req, res) => {
         res.json({ success: false, message: 'Please provide values greater than 0' })
     }
     else {
-        return res.json({ schedule: amortizer.computeSchedule(amount, rate, 12, period, amortizer.computePMT(rate, period, amount)), success: true })
+        return res.json({
+            schedule: amortizer.computeSchedule(amount, rate, 12, period, amortizer.computePMT(rate, period, amount)),
+            success: true
+        })
     }
 });
 
