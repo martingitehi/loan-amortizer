@@ -7,7 +7,7 @@ router.post('/calculate', (req, res) => {
     let period = Number.parseFloat(req.body.period)
     let amount = Number.parseFloat(req.body.amount);
 
-    if (rate < 1 && period < 1 && amount < 1) {
+    if (rate < 1 || period < 1 || amount < 1) {
         res.json({ success: false, message: 'Please provide values greater than 0' })
     }
     else {
@@ -28,12 +28,12 @@ router.post('/get-schedule', (req, res) => {
     let period = Number.parseFloat(req.body.period)
     let amount = Number.parseFloat(req.body.amount);
 
-    if (rate < 1 && period < 1 && amount < 1) {
+    if (rate < 1 || period < 1 || amount < 1) {
         res.json({ success: false, message: 'Please provide values greater than 0' })
     }
     else {
         return res.json({
-            schedule: amortizer.computeSchedule(amount, rate, 12, period, amortizer.computePMT(rate, period, amount)),
+            schedule: amortizer.computeSchedule(amount, rate, period),
             success: true
         })
     }
