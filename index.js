@@ -3,12 +3,9 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
-const url = require('url');
-const os = require('os');
-const fs = require('fs');
+
 const amortizer = require('./amortizer');
 const api = require('./api');
-const media = require('./media')
 
 const app = express();
 
@@ -24,12 +21,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-app.use('/media', media);
-
 app.use('/api', api);
-
-app.set('env', 'production')
-
 
 //dev error handler
 if (app.get('env') === 'development') {
