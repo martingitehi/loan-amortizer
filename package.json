@@ -12,11 +12,14 @@
   "author": "Martin Gitehi",
   "license": "ISC",
   "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.18.2",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
     "express": "^4.16.3",
+    "jwt-simple": "^0.5.1",
     "mongoose": "^5.0.17",
-    "morgan": "^1.9.0"
+    "morgan": "^1.9.0",
+    "uuid": "^3.2.1"
   }
 }
