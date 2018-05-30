@@ -5,7 +5,7 @@ const os = require('os');
 const fs = require('fs');
 const id = require('crypto');
 const app = express();
-const client = require('mongodb');
+const client = require('mongodb').MongoClient;
 const assert = require('assert');
 const mongoose = require('mongoose');
 const _ = require('lodash')
@@ -42,20 +42,42 @@ router.get('/files', (req, res) => {
 	_.each(files, (file) => {
 		let ext = file.substr(file.lastIndexOf('.') + 1, file.length).toLocaleLowerCase();
 		if (file.includes('.')) {
-			let f_size = fs.statSync(fileName + file).size;
-			let searchRecord = {
-				id: uuid.v4(),
-				long_name: String(fileName).trim().replace('\\', '//') + file,
-				short_name: file,
-				size: f_size.toFixed(2) / 1024 < 1 ? f_size.toFixed(2) + 'B'
-					: f_size.toFixed(2) / 1024 / 1024 < 1 ? (f_size / 1024).toFixed(2) + 'KB'
-						: (f_size / 1024 / 1024).toFixed(2) + 'MB',
-				type: ext
+			if (query.type !== undefined && query.type !== null) {
+				let f_size = fs.statSync(fileName + file).size;
+				let searchRecord = {
+					id: uuid.v4(),
+					long_name: String(fileName).trim().replace('\\', '//') + file,
+					short_name: file,
+					size: f_size.toFixed(2) / 1024 < 1 ? f_size.toFixed(2) + 'B'
+						: f_size.toFixed(2) / 1024 / 1024 < 1 ? (f_size / 1024).toFixed(2) + 'KB'
+							: (f_size / 1024 / 1024).toFixed(2) + 'MB',
+					type: ext
+				}
+				if (searchRecord.type.toString().toLocaleLowerCase() === query.type.toString().toLocaleLowerCase()) {
+					file_data.push(searchRecord)
+				}
 			}
-			file_data.push(searchRecord)
+			else {
+				let f_size = fs.statSync(fileName + file).size;
+				let searchRecord = {
+					id: uuid.v4(),
+					long_name: String(fileName).trim().replace('\\', '//') + file,
+					short_name: file,
+					size: f_size.toFixed(2) / 1024 < 1 ? f_size.toFixed(2) + 'B'
+						: f_size.toFixed(2) / 1024 / 1024 < 1 ? (f_size / 1024).toFixed(2) + 'KB'
+							: (f_size / 1024 / 1024).toFixed(2) + 'MB',
+					type: ext
+				}
+				file_data.push(searchRecord)
+			}
 		}
 	})
-	res.json({ success: true, records: file_data.length, files: file_data });
+	if (query.limit !== undefined && query.limit !== null && typeof query.limit == Number) {
+		res.json({ success: true, records: file_data.slice(0, Number.parseInt(query.limit)).length, files: file_data.slice(0, Number.parseInt(query.limit)) })
+	}
+	else {
+		res.json({ success: true, records: file_data.length, files: file_data })
+	}
 })
 
 router.get('/clear-analysis', (req, res, next) => {
@@ -76,8 +98,8 @@ router.get('/clear-analysis', (req, res, next) => {
 })
 
 router.get('/files/:id', (req, res) => {
-	let uri = decodeURI(req.url);
-	let filePath = app.get('data') + req.params.id;
+	const uri = decodeURI(req.url);
+	const filePath = app.get('data') + req.params.id;
 	const stat = fs.statSync(filePath)
 	const fileSize = stat.size
 	const range = req.headers.range
